@@ -1,0 +1,20 @@
+{
+  "Administrators":
+  [
+    {
+      "name": "Admin1"
+    }
+  ],
+  "Students":
+  [
+    {
+      "name": "Student1"
+    }
+  ],
+  "Instructors":
+  [
+    {
+      "name": "Instructor1"
+    }
+  ]
+}
