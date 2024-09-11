@@ -32,4 +32,8 @@ class JSONSerializer {
 
     return peopleList;
   }
+
+  static Future<void> makeNewInstructor(Person p) async {
+    var jsonObject = jsonEncode({'name': p.name});
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:project_1/admin_page.dart';
+import 'package:project_1/choose_person_page.dart';
 import 'package:project_1/people.dart';
-import 'serializer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,9 +43,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextButton(onPressed: onPressed, child: const Text('Administrators')),
-            TextButton(onPressed: onPressed, child: const Text('Instructors')),
-            TextButton(onPressed: onPressed, child: const Text('Students')),
+            TextButton(
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const AdminPage())),
+                child: const Text('Administrators')),
+            TextButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ChoosePersonPage())),
+                child: const Text('Instructor/Student Login')),
           ],
         ),
       ),
