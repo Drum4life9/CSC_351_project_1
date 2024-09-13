@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_1/admin_page.dart';
 import 'package:project_1/choose_person_page.dart';
-import 'package:project_1/people.dart';
 
 void main() {
   runApp(const MyApp());

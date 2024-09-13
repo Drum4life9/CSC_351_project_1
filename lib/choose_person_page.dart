@@ -14,7 +14,7 @@ class ChoosePersonPage extends StatefulWidget {
 class _ChoosePersonPageState extends State<ChoosePersonPage> {
   @override
   Widget build(BuildContext context) {
-    return const Text('Choose an aribitrary person!');
+    return const Text('Choose an arbitrary person!');
   }
 }
 

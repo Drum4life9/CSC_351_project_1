@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_1/instructor_page.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:project_1/student_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -22,8 +20,12 @@ class _AdminPageState extends State<AdminPage> {
     JSONSerializer.readPeople();
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Center(child: Text('Admin Page')),
+      ),
       body: FutureBuilder<List<Person>>(
-        future: JSONSerializer.readPeople(),
+        future: JSONSerializer.readPeopleJson(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (!snapshot.hasData) {
             return const Center(
