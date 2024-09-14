@@ -10,38 +10,6 @@ const String peopleFileName = 'People.json';
 class JSONSerializer {
   static Map<String, dynamic> PeopleJSON = {};
 
-  static Future<List<Person>> readPeople() async {
-    List<Person> peopleList = [];
-
-    String response;
-
-    response = await rootBundle.loadString('assets/People.json');
-    final data = json.decode(response);
-
-    final administrators = data['Administrators'];
-    final instructors = data['Instructors'];
-    final students = data['Students'];
-
-    for (var person in administrators) {
-      Administrator p = Administrator(person['name']);
-      peopleList.add(p);
-    }
-    for (var person in instructors) {
-      Instructor p = Instructor(person['name']);
-      peopleList.add(p);
-    }
-    for (var person in students) {
-      Student p = Student(person['name']);
-      peopleList.add(p);
-    }
-
-    return peopleList;
-  }
-
-  static Future<void> makeNewInstructor(Person p) async {
-    var jsonObject = jsonEncode({'name': p.name});
-  }
-
   static Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
@@ -52,16 +20,26 @@ class JSONSerializer {
     return File('$path/$peopleFileName');
   }
 
-  void writeNewPersonJson(Person p) async {
+  static Future<void> writeNewPersonJson(Person p) async {
     String jsonString;
     // Initialize the local _filePath
     final filePath = await _localFile;
 
     //1. Create _newJson<Map> from input<TextField>
     Map<String, dynamic> newJson = {"name": p.name};
+    //read file for current people
+    jsonString = await filePath.readAsString();
 
-    //2. Update _json by adding _newJson<Map> -> _json<Map>
-    PeopleJSON.addAll(newJson);
+    //2. Update initialized _json by converting _jsonString<String>->_json<Map>
+    PeopleJSON = jsonDecode(jsonString);
+
+    if (p is Administrator) {
+      PeopleJSON["Administrators"].add(newJson);
+    } else if (p is Instructor) {
+      PeopleJSON["Instructors"].add(newJson);
+    } else {
+      PeopleJSON["Students"].add(newJson);
+    }
 
     //3. Convert _json ->_jsonString
     jsonString = jsonEncode(PeopleJSON);

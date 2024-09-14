@@ -11,13 +11,16 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  AsyncSnapshot<dynamic>? lastSnapshot;
+
   @override
   Widget build(BuildContext context) {
     List<Person> people = [];
     List<Instructor> instructors = [];
     List<Administrator> administrators = [];
     List<Student> students = [];
-    JSONSerializer.readPeople();
+
+    TextEditingController tecName = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -27,61 +30,108 @@ class _AdminPageState extends State<AdminPage> {
       body: FutureBuilder<List<Person>>(
         future: JSONSerializer.readPeopleJson(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          List<Widget> personCards = [];
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
+          if (lastSnapshot == null || snapshot.data != lastSnapshot!.data) {
+            lastSnapshot = snapshot;
+            people = [];
+            people = snapshot.data;
 
-          people = snapshot.data;
-
-          for (var p in people) {
-            if (p is Administrator) {
-              administrators.add(p);
-            } else if (p is Student) {
-              students.add(p);
-            } else if (p is Instructor) {
-              instructors.add(p);
+            for (var p in people) {
+              if (p is Administrator) {
+                administrators.add(p);
+              } else if (p is Student) {
+                students.add(p);
+              } else if (p is Instructor) {
+                instructors.add(p);
+              }
             }
+
+            //---------add students-------------
+
+            personCards.add(const Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Students:'),
+              ),
+            ));
+            for (Student s in students) {
+              personCards.add(createPersonCard(s));
+            }
+            personCards.add(TextButton.icon(
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (c) => AlertDialog(
+                        title: const Text('Add New Student'),
+                        content: TextField(
+                          controller: tecName,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Student s = Student(tecName.text);
+                              await JSONSerializer.writeNewPersonJson(s);
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            },
+                            child: const Text('Add'),
+                          )
+                        ],
+                      )),
+              label: const Text('Add new Student'),
+              icon: const Icon(CupertinoIcons.add),
+            ));
+            personCards.add(const Divider(
+              thickness: 5,
+            ));
+
+            //---------add instructors-------------
+
+            personCards.add(const Center(
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Instructors:'),
+              ),
+            ));
+            for (Instructor s in instructors) {
+              personCards.add(createPersonCard(s));
+            }
+            personCards.add(TextButton.icon(
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (c) => AlertDialog(
+                        title: const Text('Add New Instructor'),
+                        content: TextField(
+                          controller: tecName,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Instructor i = Instructor(tecName.text);
+                              await JSONSerializer.writeNewPersonJson(i);
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            },
+                            child: const Text('Add'),
+                          )
+                        ],
+                      )),
+              label: const Text('Add new Instructor'),
+              icon: const Icon(CupertinoIcons.add),
+            ));
           }
-
-          //---------add students-------------
-
-          List<Widget> personCards = [];
-          personCards.add(const Center(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Students:'),
-            ),
-          ));
-          for (Student s in students) {
-            personCards.add(createPersonCard(s));
-          }
-          personCards.add(TextButton.icon(
-            onPressed: () => {},
-            label: const Text('Add new Student'),
-            icon: const Icon(CupertinoIcons.add),
-          ));
-          personCards.add(const Divider(
-            thickness: 5,
-          ));
-
-          //---------add instructors-------------
-
-          personCards.add(const Center(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Instructors:'),
-            ),
-          ));
-          for (Instructor s in instructors) {
-            personCards.add(createPersonCard(s));
-          }
-          personCards.add(TextButton.icon(
-            onPressed: () => {},
-            label: const Text('Add new Instructor'),
-            icon: const Icon(CupertinoIcons.add),
-          ));
 
           return Center(
             child: Padding(
