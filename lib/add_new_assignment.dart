@@ -123,8 +123,14 @@ class _AddNewAssignmentPageState extends State<AddNewAssignmentPage> {
                         String outputs = tecOutputs.text;
                         List<dynamic> outs = outputs.split(', ');
 
-                        Assignment a = Assignment(tecName.text, tecDesc.text,
-                            int.parse(tecPoints.text), dueDate, ins, outs);
+                        Assignment a = Assignment(
+                            p.id,
+                            tecName.text,
+                            tecDesc.text,
+                            int.parse(tecPoints.text),
+                            dueDate,
+                            ins,
+                            outs);
                         await JSONSerializer.addNewAssignment(p, a);
 
                         setState(() {

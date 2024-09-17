@@ -150,7 +150,7 @@ class JSONSerializer {
   static Future<void> addNewAssignment(Instructor p, Assignment a) async {
     String jsonString;
     Map<String, dynamic> assignmentsJSON = {};
-    List<Map<String, dynamic>> listAssignments = [];
+    List<dynamic> listAssignments = [];
     // Initialize the local _filePath
     final filePath = await _localFile('Assignments.json');
 
@@ -170,5 +170,61 @@ class JSONSerializer {
 
     //4. Write _jsonString to the _filePath
     filePath.writeAsString(jsonString);
+  }
+
+  static Future<List<Assignment>> readAssignments() async {
+    List<Assignment> assignmentsList = [];
+    Map<String, dynamic> assignmentJSON = {};
+    // Initialize _filePath
+    final filePath = await _localFile('Assignments.json');
+    String jsonString;
+
+    // 0. Check whether the _file exists
+    bool fileExists = await filePath.exists();
+
+    if (!fileExists) {
+      String pathToDocx = await _localPath;
+      pathToDocx += "/Assignments.json";
+      final File file = File(pathToDocx);
+      Map<String, dynamic> jsonMap = {};
+      Map<String, dynamic> instructorAssignmentMap = {
+        "Assignments": [
+          Assignment('cde', 'Test1', 'A test assignment', 100, DateTime.now(),
+              [1, 2], [2, 4]).toJson(),
+          Assignment('cde', 'Test2', 'A test2 assignment', 200, DateTime.now(),
+              [1, 2], [3, 6]).toJson()
+        ]
+      };
+      jsonMap.addAll(instructorAssignmentMap);
+      file.writeAsStringSync(json.encode(jsonMap));
+    }
+
+    fileExists = await filePath.exists();
+    // If the _file exists->read it: update initialized _json by what's in the _file
+    if (fileExists) {
+      try {
+        //1. Read _jsonString<String> from the _file.
+        jsonString = await filePath.readAsString();
+
+        //2. Update initialized _json by converting _jsonString<String>->_json<Map>
+        assignmentJSON = jsonDecode(jsonString);
+      } catch (e) {
+        // Print exception errors
+        return [];
+      }
+      final data = assignmentJSON;
+
+      final assignments = data["Assignments"];
+      for (var a in assignments) {
+        List<dynamic> ins = jsonDecode(a["inputs"]);
+        List<dynamic> out = jsonDecode(a["outputs"]);
+        Assignment assign = Assignment(a['instructorId'], a['name'], a['desc'],
+            a['points'], DateTime.parse(a['dueDate']), ins, out);
+        assignmentsList.add(assign);
+      }
+
+      return assignmentsList;
+    }
+    return [];
   }
 }
