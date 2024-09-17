@@ -77,7 +77,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              Student s = Student(tecName.text);
+                              Student s = Student(
+                                  tecName.text, JSONSerializer.getRandString());
                               await JSONSerializer.writeNewPersonJson(s);
                               Navigator.of(context).pop();
                               setState(() {});
@@ -119,7 +120,8 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              Instructor i = Instructor(tecName.text);
+                              Instructor i = Instructor(
+                                  tecName.text, JSONSerializer.getRandString());
                               await JSONSerializer.writeNewPersonJson(i);
                               Navigator.of(context).pop();
                               setState(() {});
@@ -146,12 +148,26 @@ class _AdminPageState extends State<AdminPage> {
       ),
     );
   }
-}
 
-Widget createPersonCard(Person p) {
-  return Card(
-      child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Text(p.name),
-  ));
+  Widget createPersonCard(Person p) {
+    return Card(
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(p.name),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () async {
+              await JSONSerializer.deletePerson(p);
+              setState(() {});
+            },
+            icon: const Icon(CupertinoIcons.minus),
+            tooltip: 'Remove person',
+          )
+        ],
+      ),
+    );
+  }
 }

@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -45,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
             TextButton(
                 onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const AdminPage())),
-                child: const Text('Administrators')),
+                child: const Text('Administrator login')),
             TextButton(
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const ChoosePersonPage())),
