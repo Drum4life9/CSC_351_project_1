@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class Assignment {
+  late String id;
   late String instructorId;
   late String name;
   late String desc;
@@ -9,10 +10,11 @@ class Assignment {
   late List<dynamic> inputs;
   late List<dynamic> outputs;
 
-  Assignment(this.instructorId, this.name, this.desc, this.points, this.dueDate,
-      this.inputs, this.outputs);
+  Assignment(this.id, this.instructorId, this.name, this.desc, this.points,
+      this.dueDate, this.inputs, this.outputs);
 
   Assignment.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     instructorId = json['instructorId'];
     name = json['name'];
     desc = json['desc'];
@@ -24,6 +26,7 @@ class Assignment {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
     data['instructorId'] = instructorId;
     data['name'] = name;
     data['desc'] = desc;

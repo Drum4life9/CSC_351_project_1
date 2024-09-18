@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_1/add_new_assignment.dart';
+import 'package:intl/intl.dart';
+import 'package:project_1/add_new_assignment_page.dart';
+import 'package:project_1/assignment_submissions_page.dart';
+import 'package:project_1/choose_person_page.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
 
@@ -17,7 +20,9 @@ class InstructorPage extends StatefulWidget {
 
 class _InstructorPageState extends State<InstructorPage> {
   _InstructorPageState(this.p);
+
   List<Assignment> listAssignments = [];
+  AsyncSnapshot<dynamic>? lastSnapshot;
 
   final Instructor p;
 
@@ -27,6 +32,12 @@ class _InstructorPageState extends State<InstructorPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         title: Center(child: Text('Welcome ${p.name}')),
+        leading: IconButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                    builder: (context) => const ChoosePersonPage())),
+            tooltip: 'Logout',
+            icon: const Icon(CupertinoIcons.arrow_left)),
       ),
       body: FutureBuilder<List<Assignment>>(
         future: JSONSerializer.readAssignments(),
@@ -36,47 +47,81 @@ class _InstructorPageState extends State<InstructorPage> {
               child: CircularProgressIndicator(),
             );
           }
-          listAssignments = snapshot.data;
+          if (lastSnapshot == null || snapshot.data != lastSnapshot!.data) {
+            lastSnapshot = snapshot;
+            listAssignments = snapshot.data;
 
-          List<Widget> assignmentCards = [];
-          for (Assignment a in listAssignments) {
-            assignmentCards.add(getAssignmentCard(a));
+            List<Widget> assignmentCards = [];
+            for (Assignment a in listAssignments) {
+              assignmentCards.add(getAssignmentCard(a));
+            }
+
+            return ListView(
+              children: assignmentCards,
+            );
           }
-
-          return ListView(
-            children: assignmentCards,
-          );
+          return const Text('');
         },
       ),
       floatingActionButton: FloatingActionButton(
           tooltip: 'Create Assignment',
-          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => AddNewAssignmentPage(
-                    p: p,
-                  ))),
+          onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (context) => AddNewAssignmentPage(p: p))),
           child: const Icon(CupertinoIcons.add)),
     );
   }
 
   Widget getAssignmentCard(Assignment a) {
     return Card(
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(a.name),
-          ),
-          Text(a.desc),
-          Column(
-            children: [
-              IconButton(
-                  onPressed: () => {}, icon: const Icon(CupertinoIcons.minus)),
-              IconButton(
-                  onPressed: () => {},
-                  icon: const Icon(CupertinoIcons.info_circle))
-            ],
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: Row(
+          children: [
+            Column(
+              children: [
+                Text(a.name),
+                Text(a.desc),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(1.0),
+              child: VerticalDivider(
+                color: Theme.of(context).primaryColor,
+                width: 8,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      'Due Date: ${DateFormat('yyyy-MM-dd @ kk:mm').format(a.dueDate)}'),
+                  Text('No. of Points: ${a.points}'),
+                  Text('No. of Test Cases: ${a.inputs.length}')
+                ],
+              ),
+            ),
+            const Spacer(),
+            Column(
+              children: [
+                IconButton(
+                    onPressed: () async {
+                      await JSONSerializer.deleteAssignment(a);
+                      setState(() {});
+                    },
+                    icon: const Icon(CupertinoIcons.minus)),
+                IconButton(
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                AssignmentSubmissionsPage(p: p, a: a))),
+                    icon: const Icon(CupertinoIcons.info_circle))
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

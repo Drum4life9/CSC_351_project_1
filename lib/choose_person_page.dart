@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_1/main.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
 import 'package:project_1/student_page.dart';
@@ -23,6 +25,13 @@ class _ChoosePersonPageState extends State<ChoosePersonPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Center(child: Text('Choose Your Person')),
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (context) => const MyHomePage(title: 'Project 1'))),
+          icon: const Icon(CupertinoIcons.arrow_left),
+          tooltip: 'Back',
+        ),
       ),
       body: FutureBuilder<List<Person>>(
           future: JSONSerializer.readPeopleJson(),

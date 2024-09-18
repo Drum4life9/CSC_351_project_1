@@ -35,9 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Container(),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Project 1: Assignments'),
+        title: const Center(child: Text('Project 1: Assignments')),
+        leading: Container(),
       ),
       body: Center(
         child: Column(

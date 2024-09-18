@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:project_1/instructor_page.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
 
@@ -34,6 +35,7 @@ class _AddNewAssignmentPageState extends State<AddNewAssignmentPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
         title: const Center(child: Text('Add Assignment')),
+        leading: Container(),
       ),
       body: ModalProgressHUD(
         inAsyncCall: inAsync,
@@ -112,49 +114,63 @@ class _AddNewAssignmentPageState extends State<AddNewAssignmentPage> {
                         controller: tecOutputs,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () async {
-                        setState(() {
-                          inAsync = true;
-                        });
+                    Center(
+                      child: Row(
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              setState(() {
+                                inAsync = true;
+                              });
 
-                        String inputs = tecInputs.text;
-                        List<dynamic> ins = inputs.split(', ');
-                        String outputs = tecOutputs.text;
-                        List<dynamic> outs = outputs.split(', ');
+                              String inputs = tecInputs.text;
+                              List<dynamic> ins = inputs.split(', ');
+                              String outputs = tecOutputs.text;
+                              List<dynamic> outs = outputs.split(', ');
 
-                        Assignment a = Assignment(
-                            p.id,
-                            tecName.text,
-                            tecDesc.text,
-                            int.parse(tecPoints.text),
-                            dueDate,
-                            ins,
-                            outs);
-                        await JSONSerializer.addNewAssignment(p, a);
+                              Assignment a = Assignment(
+                                  JSONSerializer.getRandString(),
+                                  p.id,
+                                  tecName.text,
+                                  tecDesc.text,
+                                  int.parse(tecPoints.text),
+                                  dueDate,
+                                  ins,
+                                  outs);
+                              await JSONSerializer.addNewAssignment(p, a);
 
-                        setState(() {
-                          inAsync = false;
-                        });
+                              setState(() {
+                                inAsync = false;
+                              });
 
-                        showDialog(
-                            context: context,
-                            builder: (c) => AlertDialog(
-                                  title: const Text('Assignment created'),
-                                  content: Text(
-                                      'Your new assignment for ${dueDate.toString()} has been created'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Ok'),
-                                    )
-                                  ],
-                                ));
-                      },
-                      child: const Text('Submit'),
+                              showDialog(
+                                  context: context,
+                                  builder: (c) => AlertDialog(
+                                        title: const Text('Assignment created'),
+                                        content: Text(
+                                            'Your new assignment for ${dueDate.toString()} has been created'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(
+                                                    context)
+                                                .push(MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        InstructorPage(p: p))),
+                                            child: const Text('Ok'),
+                                          )
+                                        ],
+                                      ));
+                            },
+                            child: const Text('Submit'),
+                          ),
+                          TextButton(
+                              onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          InstructorPage(p: p))),
+                              child: const Text('Cancel'))
+                        ],
+                      ),
                     )
                   ],
                 ),
