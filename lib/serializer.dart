@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:project_1/student_submission.dart';
+import 'package:tuple/tuple.dart';
 import 'assignment.dart';
 import 'people.dart';
 
@@ -257,7 +258,8 @@ class JSONSerializer {
   }
 
   //---------------------------STUDENT_SUBMISSIONS-----------------------
-  static Future<List<StudentSubmission>> readSubmissions() async {
+  static Future<Tuple2<List<StudentSubmission>, List<Person>>>
+      readSubmissions() async {
     List<StudentSubmission> submissionList = [];
     Map<String, dynamic> submissionJSON = {};
     // Initialize _filePath
@@ -284,6 +286,7 @@ class JSONSerializer {
           studentID: 'idc',
           instructorID: 'cde',
           assignmentID: a1.id,
+          assignmentName: a1.name,
           maxPoints: a1.points,
           earnedPoints: a1.points,
           dateSubmitted: a1.dueDate.subtract(const Duration(days: 2)),
@@ -294,6 +297,7 @@ class JSONSerializer {
           studentID: 'idc',
           instructorID: 'cde',
           assignmentID: a2.id,
+          assignmentName: a2.name,
           maxPoints: a2.points,
           earnedPoints: a2.points,
           dateSubmitted: a2.dueDate.subtract(const Duration(days: 1)),
@@ -315,16 +319,17 @@ class JSONSerializer {
         submissionJSON = jsonDecode(jsonString);
       } catch (e) {
         // Print exception errors
-        return [];
+        return const Tuple2([], []);
       }
       final data = submissionJSON;
 
       for (var a in data.values) {
         StudentSubmission ss = StudentSubmission(
             id: a['id'],
-            instructorID: a['instructorId'],
+            instructorID: a['instructorID'],
             studentID: a['studentID'],
             assignmentID: a['assignmentID'],
+            assignmentName: a['assignmentName'],
             maxPoints: a['maxPoints'],
             earnedPoints: a['earnedPoints'],
             dateSubmitted: DateTime.parse(a['dateSubmitted']),
@@ -332,8 +337,10 @@ class JSONSerializer {
         submissionList.add(ss);
       }
 
-      return submissionList;
+      List<Person> people = await JSONSerializer.readPeopleJson();
+
+      return Tuple2(submissionList, people);
     }
-    return [];
+    return const Tuple2([], []);
   }
 }

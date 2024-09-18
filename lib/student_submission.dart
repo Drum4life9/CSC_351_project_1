@@ -3,6 +3,7 @@ class StudentSubmission {
   late String studentID;
   late String instructorID;
   late String assignmentID;
+  late String assignmentName;
   late int submitNumber;
   late int maxPoints;
   late int earnedPoints;
@@ -13,6 +14,7 @@ class StudentSubmission {
       required this.studentID,
       required this.instructorID,
       required this.assignmentID,
+      required this.assignmentName,
       required this.submitNumber,
       required this.maxPoints,
       required this.earnedPoints,
@@ -23,6 +25,7 @@ class StudentSubmission {
     studentID = json['studentID'];
     instructorID = json['instructorID'];
     assignmentID = json['assignmentID'];
+    assignmentName = json['assignmentName'];
     submitNumber = json['submitNumber'];
     maxPoints = json['maxPoints'];
     earnedPoints = json['earnedPoints'];
@@ -35,6 +38,7 @@ class StudentSubmission {
     json['studentID'] = studentID;
     json['instructorID'] = instructorID;
     json['assignmentID'] = assignmentID;
+    json['assignmentName'] = assignmentName;
     json['submitNumber'] = submitNumber;
     json['maxPoints'] = maxPoints;
     json['earnedPoints'] = earnedPoints;
