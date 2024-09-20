@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:project_1/student_submission.dart';
 import 'package:tuple/tuple.dart';
@@ -360,9 +361,15 @@ class JSONSerializer {
     for (dynamic d in a.inputs) {
       data['input'] = d.toString();
 
-      var response = await http.post(Uri.parse('https://api.codex.jaagrav.in'),
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          body: data);
+      Response response;
+      try {
+        response = await http.post(Uri.parse('https://api.codex.jaagrav.in'),
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: data);
+      } catch (e) {
+        return const Tuple2(false, null);
+      }
+
       if (response.statusCode != 200) {
         return const Tuple2(false, null);
       }
@@ -389,7 +396,7 @@ class JSONSerializer {
     //get previous submissions
     List<StudentSubmission> sub = (await readSubmissions()).item1;
 
-    int lastSubmitNumber = 1;
+    int lastSubmitNumber = 0;
 
     for (StudentSubmission ss in sub) {
       if (ss.studentID == s.id &&
@@ -436,5 +443,13 @@ class JSONSerializer {
 
     //4. Write _jsonString to the _filePath
     filePath.writeAsString(jsonString);
+  }
+
+  static Future<Tuple2<List<Assignment>, List<StudentSubmission>>>
+      getAssignmentsAndSubmissions(Student s) async {
+    List<Assignment> a = await readAssignments();
+    List<StudentSubmission> ss = (await readSubmissions()).item1;
+
+    return Tuple2(a, ss);
   }
 }
