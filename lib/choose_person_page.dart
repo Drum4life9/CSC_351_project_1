@@ -60,8 +60,12 @@ class _ChoosePersonPageState extends State<ChoosePersonPage> {
             personCards.addAll(instCards);
 
             return Center(
-              child: ListView(
-                children: personCards,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30),
+                child: ListView(
+                  children: personCards,
+                ),
               ),
             );
           }),

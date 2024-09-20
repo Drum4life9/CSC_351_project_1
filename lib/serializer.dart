@@ -299,7 +299,7 @@ class JSONSerializer {
           studentID: 'idc',
           instructorID: 'cde',
           assignmentID: a2.id,
-          result: 'Good',
+          result: 'No Errors',
           assignmentName: a2.name,
           maxPoints: a2.points,
           earnedPoints: a2.points,
@@ -349,22 +349,92 @@ class JSONSerializer {
   }
 
   static Future<Tuple2<bool, StudentSubmission?>> submitAssignment(
-      Student s,
-      //Assignment a,
-      String code) async {
-    var data = {'code': code, 'language': 'py', 'input': '3'};
+      Student s, Assignment a, String code) async {
+    var data = {'code': code, 'language': 'py'};
 
-    var response = await http.post(Uri.parse('https://api.codex.jaagrav.in'),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: data);
+    int numSuccess = 0;
+    int numCases = a.inputs.length;
+    String firstError = 'No errors!';
+    int index = 0;
 
-    print(response.body);
+    for (dynamic d in a.inputs) {
+      data['input'] = d.toString();
 
-    if (response.statusCode != 200) {
-      return const Tuple2(false, null);
+      var response = await http.post(Uri.parse('https://api.codex.jaagrav.in'),
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: data);
+      if (response.statusCode != 200) {
+        return const Tuple2(false, null);
+      }
+
+      Map<String, dynamic> json = jsonDecode(response.body);
+      if (json['error'].toString().isNotEmpty) {
+        firstError = json['error'];
+        continue;
+      }
+
+      String output = json['output'].toString();
+      if (output.substring(output.length - 1) == '\n') {
+        output = output.substring(0, output.length - 1);
+      }
+
+      String realOutput = a.outputs[index].toString();
+
+      if (realOutput == output) {
+        numSuccess += 1;
+      }
+
+      index += 1;
+    }
+    //get previous submissions
+    List<StudentSubmission> sub = (await readSubmissions()).item1;
+
+    int lastSubmitNumber = 1;
+
+    for (StudentSubmission ss in sub) {
+      if (ss.studentID == s.id &&
+          ss.assignmentID == a.id &&
+          ss.submitNumber > lastSubmitNumber) {
+        lastSubmitNumber = ss.submitNumber;
+      }
     }
 
-    //this is temporary
-    return const Tuple2(true, null);
+    StudentSubmission ss = StudentSubmission(
+        id: getRandString(),
+        studentID: s.id,
+        instructorID: a.instructorId,
+        assignmentID: a.id,
+        assignmentName: a.name,
+        result: firstError,
+        submitNumber: lastSubmitNumber + 1,
+        maxPoints: numCases,
+        earnedPoints: numSuccess,
+        dateSubmitted: DateTime.now());
+
+    await writeSubmissionToFile(ss);
+
+    return Tuple2(true, ss);
+  }
+
+  static Future<void> writeSubmissionToFile(StudentSubmission ss) async {
+    String jsonString;
+    Map<String, dynamic> submissionsJSON = {};
+    // Initialize the local _filePath
+    final filePath = await _localFile('Submissions.json');
+
+    //1. Create _newJson<Map> from input<TextField>
+    Map<String, dynamic> newJson = ss.toJson();
+    //read file for current people
+    jsonString = await filePath.readAsString();
+
+    //2. Update initialized _json by converting _jsonString<String>->_json<Map>
+    submissionsJSON = jsonDecode(jsonString);
+    submissionsJSON[ss.id] = newJson;
+
+    //3. Convert _json ->_jsonString
+    jsonString = jsonEncode(submissionsJSON);
+
+    //4. Write _jsonString to the _filePath
+    filePath.writeAsString(jsonString);
   }
 }

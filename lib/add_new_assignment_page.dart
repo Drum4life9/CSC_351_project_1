@@ -124,9 +124,9 @@ class _AddNewAssignmentPageState extends State<AddNewAssignmentPage> {
                               });
 
                               String inputs = tecInputs.text;
-                              List<dynamic> ins = inputs.split(', ');
+                              List<dynamic> ins = inputs.split(',');
                               String outputs = tecOutputs.text;
-                              List<dynamic> outs = outputs.split(', ');
+                              List<dynamic> outs = outputs.split(',');
 
                               Assignment a = Assignment(
                                   JSONSerializer.getRandString(),

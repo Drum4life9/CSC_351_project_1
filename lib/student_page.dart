@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:project_1/choose_person_page.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
+import 'package:project_1/student_submission.dart';
 import 'package:project_1/student_submit_page.dart';
 
 import 'assignment.dart';
@@ -102,10 +103,65 @@ class _StudentPageState extends State<StudentPage> {
             Column(
               children: [
                 IconButton(
-                    onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                StudentSubmitPage(p: p, a: a))),
+                    onPressed: () => showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: const Text('Submit assignment file'),
+                              content: TextButton(
+                                  onPressed: () async {
+                                    FilePickerResult? result =
+                                        await FilePicker.platform.pickFiles(
+                                      type: FileType.custom,
+                                      allowedExtensions: ['py'],
+                                    );
+
+                                    if (result != null) {
+                                      File file =
+                                          File(result.files.single.path!);
+                                      String code = file.readAsStringSync();
+                                      var response =
+                                          await JSONSerializer.submitAssignment(
+                                              p, a, code);
+                                      if (!response.item1) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Upload failed'),
+                                            content: const Text(
+                                                'The file upload failed. Please try again'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Ok'),
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                      //response success
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Upload success'),
+                                          content: getSubmissionBody(
+                                              response.item2!),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text('Ok'))
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Choose file')),
+                            )),
                     icon: const Icon(CupertinoIcons.add))
               ],
             ),
@@ -114,26 +170,20 @@ class _StudentPageState extends State<StudentPage> {
       ),
     );
   }
-}
 
-// showDialog(
-// context: context,
-// builder: (context) => AlertDialog(
-// title: const Text('Submit assignment file'),
-// content: TextButton(
-// onPressed: () async {
-// FilePickerResult? result =
-// await FilePicker.platform.pickFiles(
-// type: FileType.custom,
-// allowedExtensions: ['py'],
-// );
-//
-// if (result != null) {
-// File file = File(result.files.single.path!);
-// String code = file.readAsStringSync();
-// var response =
-// await JSONSerializer.submitAssignment(p, code);
-// }
-// },
-// child: const Text('Choose file')),
-// ))
+  Widget getSubmissionBody(StudentSubmission ss) {
+    double perc = ss.earnedPoints * 100.0 / ss.maxPoints;
+    String percString = perc.toStringAsFixed(2);
+    percString += '%';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Result: ${ss.result}'),
+        Text('Number of Cases: ${ss.maxPoints}'),
+        Text('Number of successes: ${ss.earnedPoints}'),
+        const Text('Score on assignment:'),
+        Text(percString),
+      ],
+    );
+  }
+}
