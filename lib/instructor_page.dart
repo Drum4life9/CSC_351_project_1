@@ -53,7 +53,9 @@ class _InstructorPageState extends State<InstructorPage> {
 
             List<Widget> assignmentCards = [];
             for (Assignment a in listAssignments) {
-              assignmentCards.add(getAssignmentCard(a));
+              if (a.instructorId == p.id) {
+                assignmentCards.add(getAssignmentCard(a));
+              }
             }
 
             return ListView(

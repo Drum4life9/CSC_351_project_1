@@ -6,6 +6,7 @@ import 'package:project_1/student_submission.dart';
 import 'package:tuple/tuple.dart';
 import 'assignment.dart';
 import 'people.dart';
+import 'package:http/http.dart' as http;
 
 const String peopleFileName = 'People.json';
 
@@ -288,7 +289,8 @@ class JSONSerializer {
           assignmentID: a1.id,
           assignmentName: a1.name,
           maxPoints: a1.points,
-          earnedPoints: a1.points,
+          result: 'Error: Insert Error Here',
+          earnedPoints: 0,
           dateSubmitted: a1.dueDate.subtract(const Duration(days: 2)),
           submitNumber: 1,
         ),
@@ -297,6 +299,7 @@ class JSONSerializer {
           studentID: 'idc',
           instructorID: 'cde',
           assignmentID: a2.id,
+          result: 'Good',
           assignmentName: a2.name,
           maxPoints: a2.points,
           earnedPoints: a2.points,
@@ -330,6 +333,7 @@ class JSONSerializer {
             studentID: a['studentID'],
             assignmentID: a['assignmentID'],
             assignmentName: a['assignmentName'],
+            result: a['result'],
             maxPoints: a['maxPoints'],
             earnedPoints: a['earnedPoints'],
             dateSubmitted: DateTime.parse(a['dateSubmitted']),
@@ -342,5 +346,25 @@ class JSONSerializer {
       return Tuple2(submissionList, people);
     }
     return const Tuple2([], []);
+  }
+
+  static Future<Tuple2<bool, StudentSubmission?>> submitAssignment(
+      Student s,
+      //Assignment a,
+      String code) async {
+    var data = {'code': code, 'language': 'py', 'input': '3'};
+
+    var response = await http.post(Uri.parse('https://api.codex.jaagrav.in'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: data);
+
+    print(response.body);
+
+    if (response.statusCode != 200) {
+      return const Tuple2(false, null);
+    }
+
+    //this is temporary
+    return const Tuple2(true, null);
   }
 }

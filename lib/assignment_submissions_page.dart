@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:project_1/people.dart';
 import 'package:project_1/serializer.dart';
 import 'package:project_1/student_submission.dart';
@@ -57,6 +58,8 @@ class _AssignmentSubmissionsPageState extends State<AssignmentSubmissionsPage> {
                 StudentSubmission? cardSS;
                 for (StudentSubmission ss in submissions) {
                   if (ss.studentID == s.id &&
+                      ss.instructorID == p.id &&
+                      ss.assignmentID == a.id &&
                       (cardSS == null ||
                           cardSS.submitNumber < ss.submitNumber)) {
                     cardSS = ss;
@@ -75,19 +78,57 @@ class _AssignmentSubmissionsPageState extends State<AssignmentSubmissionsPage> {
   }
 
   Widget getStudentSubmissionCard(Student s, StudentSubmission? ss) {
+    bool hasSS = ss != null;
+    double perc;
+    String percStr = '';
+    if (hasSS) {
+      perc = ss.earnedPoints * 100 / ss.maxPoints;
+      percStr = perc.toStringAsFixed(2);
+      percStr += '%';
+    }
     return Card(
       child: Row(
         children: [
-          Column(
-            children: [
-              Text('${s.name}:'),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(a.name),
-              ),
-              Text('${ss != null ? ss.submitNumber : 'None'}'),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(a.name),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4.0),
+                  child: Text(s.name),
+                ),
+                hasSS
+                    ? Text('Submission no. ${ss.submitNumber}')
+                    : const Text('No Submissions'),
+              ],
+            ),
+          ),
+          const Spacer(),
+          hasSS
+              ? Column(
+                  children: [
+                    const Text('Date submitted: '),
+                    Text(DateFormat('yyyy-MM-dd @ kk:mm')
+                        .format(ss.dateSubmitted))
+                  ],
+                )
+              : const Text(''),
+          hasSS
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Column(
+                    children: [
+                      const Text('Score:'),
+                      Text('${ss.earnedPoints}/${ss.maxPoints}'),
+                      Text(percStr)
+                    ],
+                  ),
+                )
+              : const Text(''),
         ],
       ),
     );
